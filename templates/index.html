@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Invite Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Party Invite Generator</h1>
+
+        <form id="inviteForm">
+            <!-- Celebration Details Section -->
+            <div class="form-section">
+                <h2>Celebration Details</h2>
+
+                <div class="input-group">
+                    <label for="celebrant_name">Name of Celebrant:</label>
+                    <input type="text" id="celebrant_name" name="celebrant_name" required 
+                           class="text-input" placeholder="Enter name">
+                </div>
+
+                <div class="input-group">
+                    <label for="celebration_type">Type of Celebration:</label>
+                    <select id="celebration_type" name="celebration_type" class="select-input" required>
+                        <option value="">Select celebration type</option>
+                        <option value="birthday">Birthday Party</option>
+                        <option value="baptism">Baptism/Christening</option>
+                        <option value="baby_shower">Baby Shower</option>
+                        <option value="communion">First Communion</option>
+                        <option value="bar_mitzvah">Bar/Bat Mitzvah</option>
+                        <option value="graduation">Graduation</option>
+                        <option value="naming">Naming Ceremony</option>
+                        <option value="adoption">Adoption Celebration</option>
+                        <option value="welcome">Welcome Home Party</option>
+                        <option value="other">Other (specify)</option>
+                    </select>
+                    <input type="text" id="other_celebration" name="other_celebration" 
+                           class="text-input other-input" placeholder="Enter celebration type">
+                </div>
+
+                <div class="input-group" id="age-group">
+                    <label for="age">Age (if applicable):</label>
+                    <input type="number" id="age" name="age" min="0" max="150" 
+                           class="number-input" placeholder="Enter age">
+                </div>
+
+                <div class="input-group">
+                    <label for="theme">Party Theme:</label>
+                    <select id="theme" name="theme" class="select-input" required>
+                        <option value="">Select party theme</option>
+                        <option value="superheroes">Superheroes</option>
+                        <option value="princess">Princess/Fairy Tale</option>
+                        <option value="dinosaurs">Dinosaurs</option>
+                        <option value="space">Space/Astronauts</option>
+                        <option value="animals">Animals/Safari</option>
+                        <option value="pirates">Pirates</option>
+                        <option value="unicorns">Unicorns & Rainbows</option>
+                        <option value="sports">Sports</option>
+                        <option value="ocean">Ocean/Under the Sea</option>
+                        <option value="art">Art & Crafts</option>
+                        <option value="science">Science/Laboratory</option>
+                        <option value="garden">Garden Party</option>
+                        <option value="videogames">Video Games</option>
+                        <option value="music">Music/Dance</option>
+                        <option value="circus">Circus/Carnival</option>
+                        <option value="none">No Specific Theme</option>
+                        <option value="other">Other (specify)</option>
+                    </select>
+                    <input type="text" id="other_theme" name="other_theme" 
+                           class="text-input other-input" placeholder="Enter custom theme">
+                </div>
+
+                <div class="input-group">
+                    <label for="interests">Personal Interests/Hobbies:</label>
+                    <textarea id="interests" name="interests" class="textarea-input" 
+                              placeholder="Enter celebrant's interests or hobbies"></textarea>
+                </div>
+            </div>
+
+            <!-- Event Details Section -->
+            <div class="form-section">
+                <h2>Event Details</h2>
+
+                <div class="input-group">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date" class="date-input" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="time">Time:</label>
+                    <input type="time" id="time" name="time" class="time-input" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="location">Location:</label>
+                    <textarea id="location" name="location" class="textarea-input" 
+                              placeholder="Enter full address or venue name" required></textarea>
+                </div>
+            </div>
+
+            <!-- Gift Preferences Section -->
+            <div class="form-section">
+                <h2>Gift Preferences</h2>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="preferences" value="preloved toys welcome">
+                        Preloved Toys Welcome
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="preferences" value="books only">
+                        Books Only
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="preferences" value="preloved books">
+                        Preloved Books
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="preferences" value="no plastic toys">
+                        No Plastic Toys
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="preferences" value="experience gifts welcome">
+                        Experience Gifts Welcome
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="preferences" value="cash donations welcome">
+                        Cash Donations Welcome
+                    </label>
+                </div>
+            </div>
+
+            <!-- Style Options Section -->
+            <div class="form-section">
+                <h2>Style Options</h2>
+                <div class="form-group">
+                    <label for="style">Writing Style:</label>
+                    <div class="slider-container">
+                        <input type="range" id="style" name="style" min="0" max="2" value="1" class="style-slider">
+                        <div class="slider-labels">
+                            <span>Formal</span>
+                            <span>Friendly</span>
+                            <span>Very Casual</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="emoji_level">Emoji Level:</label>
+                    <div class="slider-container">
+                        <input type="range" id="emoji_level" name="emoji_level" min="0" max="3" value="1" class="style-slider">
+                        <div class="slider-labels">
+                            <span>None</span>
+                            <span>Minimal</span>
+                            <span>Moderate</span>
+                            <span>Lots</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="length">Message Length:</label>
+                    <div class="slider-container">
+                        <input type="range" id="length" name="length" min="0" max="3" value="2" class="style-slider">
+                        <div class="slider-labels">
+                            <span>Very Short</span>
+                            <span>Short</span>
+                            <span>Medium</span>
+                            <span>Long</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Generate Invite</button>
+                <button type="button" class="btn btn-secondary" id="clearForm">Clear Form</button>
+            </div>
+        </form>
+
+        <div class="loading-spinner" id="loading"></div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="result-text" id="inviteText"></div>
+            <button class="btn btn-primary" id="copyButton">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script>
+        // Handle age input visibility
+        document.getElementById('celebration_type').addEventListener('change', function() {
+            const ageGroup = document.getElementById('age-group');
+            const needsAge = ['birthday', 'bar_mitzvah'].includes(this.value);
+            ageGroup.style.display = needsAge ? 'block' : 'none';
+            document.getElementById('age').required = needsAge;
+
+            // Handle "Other" input visibility
+            const otherInput = document.getElementById('other_celebration');
+            otherInput.style.display = this.value === 'other' ? 'block' : 'none';
+            otherInput.required = this.value === 'other';
+        });
+
+        // Handle theme "Other" input visibility
+        document.getElementById('theme').addEventListener('change', function() {
+            const otherInput = document.getElementById('other_theme');
+            otherInput.style.display = this.value === 'other' ? 'block' : 'none';
+            otherInput.required = this.value === 'other';
+        });
+
+        document.getElementById('inviteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Get selected preferences
+            const preferences = Array.from(document.querySelectorAll('input[name="preferences"]:checked'))
+                .map(checkbox => checkbox.value);
+
+            // Format date
+            const dateObj = new Date(document.getElementById('date').value);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            // Format time
+            const timeValue = document.getElementById('time').value;
+            const [hours, minutes] = timeValue.split(':');
+            const formattedTime = new Date(2024, 0, 1, hours, minutes).toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            });
+
+            // Show loading spinner
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultContainer').style.display = 'none';
+
+            try {
+                const response = await fetch('/generate-invite', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        celebrant_name: document.getElementById('celebrant_name').value,
+                        celebration_type: document.getElementById('celebration_type').value === 'other' 
+                            ? 'other:' + document.getElementById('other_celebration').value 
+                            : document.getElementById('celebration_type').value,
+                        age: document.getElementById('age').value,
+                        theme: document.getElementById('theme').value === 'other'
+                            ? 'other:' + document.getElementById('other_theme').value
+                            : document.getElementById('theme').value,
+                        interests: document.getElementById('interests').value,
+                        date: formattedDate,
+                        time: formattedTime,
+                        location: document.getElementById('location').value,
+                        preferences: preferences,
+                        style: ['formal', 'friendly', 'very casual'][document.getElementById('style').value],
+                        emoji_level: ['none', 'minimal', 'moderate', 'lots'][document.getElementById('emoji_level').value],
+                        length: ['very-short', 'short', 'medium', 'long'][document.getElementById('length').value]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('inviteText').textContent = data.invite_text;
+                    document.getElementById('resultContainer').style.display = 'block';
+                } else {
+                    alert(data.error || 'An error occurred');
+                }
+            } catch (error) {
+                alert('An error occurred while generating the invite');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+
+        document.getElementById('clearForm').addEventListener('click', () => {
+            document.getElementById('inviteForm').reset();
+            document.getElementById('resultContainer').style.display = 'none';
+            // Reset other input fields visibility
+            document.getElementById('other_celebration').style.display = 'none';
+            document.getElementById('other_theme').style.display = 'none';
+            // Reset age input visibility
+            document.getElementById('age-group').style.display = 'block';
+        });
+
+        document.getElementById('copyButton').addEventListener('click', () => {
+            const inviteText = document.getElementById('inviteText').textContent;
+            navigator.clipboard.writeText(inviteText).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy to clipboard');
+            });
+        });
+    </script>
+</body>
+</html>
