@@ -7,26 +7,6 @@ anthropic = Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
 def create_invite_text(party_details):
     """
     Generate party invite text using Claude API based on detailed party information.
-
-    Args:
-        party_details (dict): Dictionary containing all party details including:
-            - celebrant_name
-            - celebration_type
-            - age (optional)
-            - theme
-            - interests
-            - date
-            - time
-            - location
-            - preferences (list)
-            - style
-            - emoji_level
-            - length
-            - gift_emphasis_level
-            - custom_green_statement (optional)
-            - cash_method (optional)
-            - paypal_link (optional)
-            - charity_link (optional)
     """
     # Handle custom celebration type
     celebration = party_details['celebration_type']
@@ -38,8 +18,24 @@ def create_invite_text(party_details):
     if theme.startswith('other:'):
         theme = theme.replace('other:', '').strip()
 
-    # Get gift preference instructions based on emphasis level
-    gift_instructions = get_gift_emphasis_guide(
+    # Get themed opening section
+    theme_section = create_theme_section(
+        theme,
+        party_details['celebrant_name'],
+        party_details.get('age', ''),
+        party_details['date'],
+        party_details['time'],
+        party_details['location']
+    )
+
+    # Get personal section
+    personal_section = create_personal_section(
+        party_details['celebrant_name'],
+        party_details.get('interests', '')
+    )
+
+    # Get gift section
+    gift_section = get_gift_emphasis_guide(
         party_details['gift_emphasis_level'],
         party_details['preferences'],
         party_details.get('custom_green_statement', ''),
@@ -48,26 +44,28 @@ def create_invite_text(party_details):
         party_details.get('charity_link')
     )
 
-    # Create base prompt
-    prompt = f"""Please write a {party_details['style']} invitation for a {celebration} celebration. Here are the details:
+    # Create structured prompt
+    prompt = f"""Please write a {party_details['style']} invitation for a {celebration} celebration with three distinct sections:
 
-Celebrant: {party_details['celebrant_name']}
-{"Age: " + party_details['age'] if party_details.get('age') else ""}
-Theme: {theme}
-Date: {party_details['date']}
-Time: {party_details['time']}
-Location: {party_details['location']}
+Section 1 - Theme and Event Details:
+{theme_section}
 
-{"Personal Interests: " + party_details['interests'] if party_details.get('interests') else ""}
+Section 2 - Personal Touch:
+{personal_section}
 
-{gift_instructions}
+Section 3 - Gift Preferences:
+{gift_section}
 
 Style instruction: {get_style_guide(party_details['style'])}
 Emoji instruction: {get_emoji_guide(party_details['emoji_level'])}
 Length instruction: {get_length_guide(party_details['length'])}
 
-Please write a warm and inviting message that incorporates the theme and personal interests naturally.
-Format all dates, times, locations, and the celebrant's name using markdown bold syntax (e.g., **date**)."""
+Important formatting:
+- Format all dates, times, locations, and the celebrant's name using markdown bold syntax (e.g., **date**)
+- Keep each section distinct but flowing naturally
+- Ensure Section 1 captures attention with the theme
+- Make Section 2 personal and warm
+- Present Section 3 according to the gift emphasis level"""
 
     # Call Claude API
     response = anthropic.messages.create(
@@ -79,6 +77,46 @@ Format all dates, times, locations, and the celebrant's name using markdown bold
     )
 
     return response.content[0].text
+
+def create_theme_section(theme, name, age, date, time, location):
+    """Generate the themed opening section."""
+    theme_guides = {
+        'superheroes': "Use superhero action and adventure themed language",
+        'princess': "Use magical royal themed language",
+        'dinosaurs': "Use prehistoric/dinosaur themed language",
+        'space': "Use space exploration themed language",
+        'animals': "Use safari/wildlife themed language",
+        'pirates': "Use swashbuckling pirate themed language",
+        'unicorns': "Use magical and enchanted themed language",
+        'sports': "Use sports and championship themed language",
+        'ocean': "Use underwater adventure themed language",
+        'art': "Use creative and artistic themed language",
+        'science': "Use laboratory and experiment themed language",
+        'garden': "Use nature and flower themed language",
+        'videogames': "Use gaming and adventure themed language",
+        'music': "Use musical and rhythmic themed language",
+        'circus': "Use carnival and circus themed language"
+    }
+
+    return f"""Create an exciting opening that:
+- {theme_guides.get(theme, "Use theme-appropriate language")}
+- Announces that {name} {"turns " + age if age else "is celebrating"}
+- Incorporates these details in a thematic way:
+  - Date: {date}
+  - Time: {time}
+  - Location: {location}
+Make this section engaging and capture the theme's spirit."""
+
+def create_personal_section(name, interests):
+    """Generate the personal interests section."""
+    if not interests:
+        return f"Create a warm and welcoming message about {name}'s special day."
+
+    return f"""Create a personal section that:
+- Naturally introduces these interests: {interests}
+- Shows what makes {name} special
+- Creates a connection between the theme and their interests where possible
+Make this section warm and personal."""
 
 def get_style_guide(style):
     """Return style instructions based on selected style."""
@@ -125,25 +163,20 @@ def get_gift_emphasis_guide(level, preferences, custom_statement='', cash_method
         preferences_text += f". In lieu of gifts, consider donating to our chosen charity at: {charity_link}"
 
     guides = {
-        'subtle': f"""
-Gift preference instruction: Mention these gift preferences very subtly and indirectly, as a gentle aside: {preferences_text}. 
+        'subtle': f"""Present these gift preferences ({preferences_text}) very subtly and indirectly.
 Use soft language like "if you're thinking of gifts" or "has an appreciation for".""",
 
-        'gentle': f"""
-Gift preference instruction: Present these gift preferences as friendly suggestions: {preferences_text}.
+        'gentle': f"""Present these gift preferences ({preferences_text}) as friendly suggestions.
 Use warm, encouraging language like "would be delighted with" or "we warmly welcome".""",
 
-        'clear': f"""
-Gift preference instruction: State these gift preferences clearly but politely: {preferences_text}.
+        'clear': f"""State these gift preferences ({preferences_text}) clearly but politely.
 Use direct language like "we're requesting" or "please note that we prefer", while maintaining a warm tone.""",
 
-        'eco': f"""
-Gift preference instruction: Present these gift preferences as part of an environmental choice: {preferences_text}.
+        'eco': f"""Present these gift preferences ({preferences_text}) as part of an environmental choice.
 Include a brief mention of sustainability. Use clear, purposeful language about sustainable choices.
 {custom_statement if custom_statement else ''}""",
 
-        'advocate': f"""
-Gift preference instruction: Frame these gift preferences within a strong environmental message: {preferences_text}.
+        'advocate': f"""Frame these gift preferences ({preferences_text}) within a strong environmental message.
 {custom_statement if custom_statement else "Our family is committed to raising eco-conscious children and celebrating sustainably."}
 Use clear, purposeful language about sustainable choices and environmental impact.
 End the invitation with this footer: "Want to create your own sustainable celebration? Visit GreenVite.fun 🌱" """
