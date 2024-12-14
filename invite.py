@@ -28,14 +28,10 @@ def create_invite_text(party_details):
         party_details['location']
     )
 
-    # Get personal section
-    personal_section = create_personal_section(
+    # Get interests and gift section combined
+    interests_and_gifts = create_interests_and_gifts_section(
         party_details['celebrant_name'],
-        party_details.get('interests', '')
-    )
-
-    # Get gift section
-    gift_section = get_gift_emphasis_guide(
+        party_details.get('interests', ''),
         party_details['gift_emphasis_level'],
         party_details['preferences'],
         party_details.get('custom_green_statement', ''),
@@ -44,17 +40,14 @@ def create_invite_text(party_details):
         party_details.get('charity_link')
     )
 
-    # Create structured prompt
-    prompt = f"""Please write a {party_details['style']} invitation for a {celebration} celebration with three distinct sections:
+    # Create flowing prompt
+    prompt = f"""Please write a {party_details['style']} invitation for a {celebration} celebration that flows naturally in two paragraphs:
 
-Section 1 - Theme and Event Details:
+Opening paragraph - theme and event details:
 {theme_section}
 
-Section 2 - Personal Touch:
-{personal_section}
-
-Section 3 - Gift Preferences:
-{gift_section}
+Personal interests and gift preferences paragraph:
+{interests_and_gifts}
 
 Style instruction: {get_style_guide(party_details['style'])}
 Emoji instruction: {get_emoji_guide(party_details['emoji_level'])}
@@ -62,10 +55,10 @@ Length instruction: {get_length_guide(party_details['length'])}
 
 Important formatting:
 - Format all dates, times, locations, and the celebrant's name using markdown bold syntax (e.g., **date**)
-- Keep each section distinct but flowing naturally
-- Ensure Section 1 captures attention with the theme
-- Make Section 2 personal and warm
-- Present Section 3 according to the gift emphasis level"""
+- Create a flowing invitation without any section numbers or headers
+- Ensure natural transitions between ideas
+- The second paragraph should flow smoothly from interests to gift preferences
+- The gift preferences should feel connected to the child's interests where possible"""
 
     # Call Claude API
     response = anthropic.messages.create(
@@ -79,7 +72,7 @@ Important formatting:
     return response.content[0].text
 
 def create_theme_section(theme, name, age, date, time, location):
-    """Generate the themed opening section."""
+    """Generate the themed opening paragraph."""
     theme_guides = {
         'superheroes': "Use superhero action and adventure themed language",
         'princess': "Use magical royal themed language",
@@ -101,22 +94,58 @@ def create_theme_section(theme, name, age, date, time, location):
     return f"""Create an exciting opening that:
 - {theme_guides.get(theme, "Use theme-appropriate language")}
 - Announces that {name} {"turns " + age if age else "is celebrating"}
-- Incorporates these details in a thematic way:
+- Incorporates these details naturally:
   - Date: {date}
   - Time: {time}
-  - Location: {location}
-Make this section engaging and capture the theme's spirit."""
+  - Location: {location}"""
 
-def create_personal_section(name, interests):
-    """Generate the personal interests section."""
-    if not interests:
-        return f"Create a warm and welcoming message about {name}'s special day."
+def create_interests_and_gifts_section(name, interests, emphasis_level, preferences, custom_statement='', cash_method=None, paypal_link=None, charity_link=None):
+    """Generate combined interests and gift preferences section."""
+    # Format gift preferences
+    preferences_text = ', '.join(preferences) if preferences else 'no specific preferences'
 
-    return f"""Create a personal section that:
-- Naturally introduces these interests: {interests}
-- Shows what makes {name} special
-- Creates a connection between the theme and their interests where possible
-Make this section warm and personal."""
+    # Add payment details if cash donations are included
+    if 'cash donations welcome' in preferences and cash_method:
+        if cash_method == 'envelope':
+            preferences_text += ". Cash gifts should be presented in an envelope"
+        elif cash_method == 'paypal' and paypal_link:
+            preferences_text += f". PayPal contributions can be sent via: {paypal_link}"
+
+    # Add charity details if included
+    if 'charity donations welcome' in preferences and charity_link:
+        preferences_text += f". In lieu of gifts, consider donating to our chosen charity at: {charity_link}"
+
+    emphasis_guides = {
+        'subtle': f"""Create a paragraph that:
+- Warmly describes {name}'s interests: {interests}
+- Very subtly mentions these gift preferences: {preferences_text}
+- Uses soft language like "if you're thinking of gifts" or "has an appreciation for" """,
+
+        'gentle': f"""Create a paragraph that:
+- Warmly describes {name}'s interests: {interests}
+- Suggests these gift preferences gently: {preferences_text}
+- Uses warm language like "would be delighted with" or "we warmly welcome" """,
+
+        'clear': f"""Create a paragraph that:
+- Warmly describes {name}'s interests: {interests}
+- States these gift preferences clearly but politely: {preferences_text}
+- Uses direct but warm language about the gift preferences""",
+
+        'eco': f"""Create a paragraph that:
+- Warmly describes {name}'s interests: {interests}
+- Connects interests to environmental awareness where possible
+- Presents these gift preferences as eco-conscious choices: {preferences_text}
+{custom_statement if custom_statement else ''}""",
+
+        'advocate': f"""Create a paragraph that:
+- Warmly describes {name}'s interests: {interests}
+- Connects interests to environmental awareness
+- Strongly emphasizes sustainable gift choices: {preferences_text}
+{custom_statement if custom_statement else "Our family is committed to raising eco-conscious children and celebrating sustainably."}
+End with: "Want to create your own sustainable celebration? Visit GreenVite.fun 🌱" """
+    }
+
+    return emphasis_guides.get(emphasis_level, emphasis_guides['gentle'])
 
 def get_style_guide(style):
     """Return style instructions based on selected style."""
@@ -146,39 +175,3 @@ def get_length_guide(length):
         'long': "Keep the response between 150-200 words"
     }
     return guides.get(length, guides['medium'])
-
-def get_gift_emphasis_guide(level, preferences, custom_statement='', cash_method=None, paypal_link=None, charity_link=None):
-    """Return gift preference instructions based on emphasis level and payment options."""
-    preferences_text = ', '.join(preferences) if preferences else 'no specific preferences'
-
-    # Add payment details if cash donations are included
-    if 'cash donations welcome' in preferences and cash_method:
-        if cash_method == 'envelope':
-            preferences_text += ". Cash gifts should be presented in an envelope"
-        elif cash_method == 'paypal' and paypal_link:
-            preferences_text += f". PayPal contributions can be sent via: {paypal_link}"
-
-    # Add charity details if included
-    if 'charity donations welcome' in preferences and charity_link:
-        preferences_text += f". In lieu of gifts, consider donating to our chosen charity at: {charity_link}"
-
-    guides = {
-        'subtle': f"""Present these gift preferences ({preferences_text}) very subtly and indirectly.
-Use soft language like "if you're thinking of gifts" or "has an appreciation for".""",
-
-        'gentle': f"""Present these gift preferences ({preferences_text}) as friendly suggestions.
-Use warm, encouraging language like "would be delighted with" or "we warmly welcome".""",
-
-        'clear': f"""State these gift preferences ({preferences_text}) clearly but politely.
-Use direct language like "we're requesting" or "please note that we prefer", while maintaining a warm tone.""",
-
-        'eco': f"""Present these gift preferences ({preferences_text}) as part of an environmental choice.
-Include a brief mention of sustainability. Use clear, purposeful language about sustainable choices.
-{custom_statement if custom_statement else ''}""",
-
-        'advocate': f"""Frame these gift preferences ({preferences_text}) within a strong environmental message.
-{custom_statement if custom_statement else "Our family is committed to raising eco-conscious children and celebrating sustainably."}
-Use clear, purposeful language about sustainable choices and environmental impact.
-End the invitation with this footer: "Want to create your own sustainable celebration? Visit GreenVite.fun 🌱" """
-    }
-    return guides.get(level, guides['gentle'])
