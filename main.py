@@ -34,6 +34,15 @@ def generate_invite():
         # Get form data
         data = request.json
 
+        # Validate payment related fields if cash donations are selected
+        if 'cash donations welcome' in data.get('preferences', []):
+            if data.get('cash_method') == 'paypal' and not data.get('paypal_link'):
+                return jsonify({'error': 'PayPal link is required when PayPal method is selected'}), 400
+
+        # Validate charity link if charity donations are selected
+        if 'charity donations welcome' in data.get('preferences', []) and not data.get('charity_link'):
+            return jsonify({'error': 'Charity link is required when charity donations are selected'}), 400
+
         # Generate invite text
         invite_text = create_invite_text(data)
 

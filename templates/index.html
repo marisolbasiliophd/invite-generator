@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Party Invite Generator</title>
+    <title>GreenVite - Sustainable Party Invitations</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>🎉 Party Invite Generator</h1>
+        <h1>🌱 GreenVite</h1>
 
         <form id="inviteForm">
             <!-- Celebration Details Section -->
@@ -126,177 +126,263 @@
                         Experience Gifts Welcome
                     </label>
                     <label class="checkbox-item">
-                        <input type="checkbox" name="preferences" value="cash donations welcome">
+                        <input type="checkbox" name="preferences" value="cash donations welcome" id="cash_donations_checkbox">
                         Cash Donations Welcome
                     </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="preferences" value="charity donations welcome" id="charity_donations_checkbox">
+                        Charity Donations Welcome
+                    </label>
+                </div>
+
+                <div class="input-group" id="cash-options-container" style="display: none;">
+                    <label>Cash Donation Preference:</label>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="cash_method" value="envelope">
+                            Cash in Envelope
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="cash_method" value="paypal">
+                            PayPal
+                        </label>
+                    </div>
+                    <input type="text" id="paypal_link" name="paypal_link" 
+                           class="text-input" style="display: none;"
+                           placeholder="Enter your PayPal.me link">
+                </div>
+
+                <div class="input-group" id="charity-container" style="display: none;">
+                    <label for="charity_link">Preferred Charity Link:</label>
+                    <input type="text" id="charity_link" name="charity_link" 
+                           class="text-input"
+                           placeholder="Enter the charity's donation page URL">
+                </div>
+
+                <div class="form-group">
+                    <label for="gift_emphasis">Gift Preference Emphasis:</label>
+                    <div class="slider-container">
+                        <input type="range" id="gift_emphasis" name="gift_emphasis" min="0" max="4" value="1" class="style-slider">
+                        <div class="slider-labels">
+                            <span>Subtle Hint</span>
+                            <span>Gentle</span>
+                            <span>Clear</span>
+                            <span>Eco-conscious</span>
+                            <span>Green Advocate</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group" id="custom-green-container" style="display: none;">
+                    <label for="custom_green_statement">Custom Environmental Statement (optional):</label>
+                    <textarea id="custom_green_statement" name="custom_green_statement" 
+                            class="textarea-input" 
+                            placeholder="Share your family's environmental values or sustainable celebration goals..."></textarea>
                 </div>
             </div>
 
             <!-- Style Options Section -->
-            <div class="form-section">
-                <h2>Style Options</h2>
-                <div class="form-group">
-                    <label for="style">Writing Style:</label>
-                    <div class="slider-container">
-                        <input type="range" id="style" name="style" min="0" max="2" value="1" class="style-slider">
-                        <div class="slider-labels">
-                            <span>Formal</span>
-                            <span>Friendly</span>
-                            <span>Very Casual</span>
+                        <div class="form-section">
+                            <h2>Style Options</h2>
+                            <div class="form-group">
+                                <label for="style">Writing Style:</label>
+                                <div class="slider-container">
+                                    <input type="range" id="style" name="style" min="0" max="2" value="1" class="style-slider">
+                                    <div class="slider-labels">
+                                        <span>Formal</span>
+                                        <span>Friendly</span>
+                                        <span>Very Casual</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="emoji_level">Emoji Level:</label>
+                                <div class="slider-container">
+                                    <input type="range" id="emoji_level" name="emoji_level" min="0" max="3" value="1" class="style-slider">
+                                    <div class="slider-labels">
+                                        <span>None</span>
+                                        <span>Minimal</span>
+                                        <span>Moderate</span>
+                                        <span>Lots</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="length">Message Length:</label>
+                                <div class="slider-container">
+                                    <input type="range" id="length" name="length" min="0" max="3" value="2" class="style-slider">
+                                    <div class="slider-labels">
+                                        <span>Very Short</span>
+                                        <span>Short</span>
+                                        <span>Medium</span>
+                                        <span>Long</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary">Generate Invite</button>
+                            <button type="button" class="btn btn-secondary" id="clearForm">Clear Form</button>
+                        </div>
+                    </form>
+
+                    <div class="loading-spinner" id="loading"></div>
+
+                    <div class="result-container" id="resultContainer">
+                        <div class="result-text" id="inviteText"></div>
+                        <button class="btn btn-primary" id="copyButton">Copy to Clipboard</button>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="emoji_level">Emoji Level:</label>
-                    <div class="slider-container">
-                        <input type="range" id="emoji_level" name="emoji_level" min="0" max="3" value="1" class="style-slider">
-                        <div class="slider-labels">
-                            <span>None</span>
-                            <span>Minimal</span>
-                            <span>Moderate</span>
-                            <span>Lots</span>
-                        </div>
-                    </div>
-                </div>
+                <script>
+                    // Handle age input visibility
+                    document.getElementById('celebration_type').addEventListener('change', function() {
+                        const ageGroup = document.getElementById('age-group');
+                        const needsAge = ['birthday', 'bar_mitzvah'].includes(this.value);
+                        ageGroup.style.display = needsAge ? 'block' : 'none';
+                        document.getElementById('age').required = needsAge;
 
-                <div class="form-group">
-                    <label for="length">Message Length:</label>
-                    <div class="slider-container">
-                        <input type="range" id="length" name="length" min="0" max="3" value="2" class="style-slider">
-                        <div class="slider-labels">
-                            <span>Very Short</span>
-                            <span>Short</span>
-                            <span>Medium</span>
-                            <span>Long</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        // Handle "Other" input visibility
+                        const otherInput = document.getElementById('other_celebration');
+                        otherInput.style.display = this.value === 'other' ? 'block' : 'none';
+                        otherInput.required = this.value === 'other';
+                    });
 
-            <div class="button-group">
-                <button type="submit" class="btn btn-primary">Generate Invite</button>
-                <button type="button" class="btn btn-secondary" id="clearForm">Clear Form</button>
-            </div>
-        </form>
+                    // Handle theme "Other" input visibility
+                    document.getElementById('theme').addEventListener('change', function() {
+                        const otherInput = document.getElementById('other_theme');
+                        otherInput.style.display = this.value === 'other' ? 'block' : 'none';
+                        otherInput.required = this.value === 'other';
+                    });
 
-        <div class="loading-spinner" id="loading"></div>
+                    // Handle cash donations options visibility
+                    document.getElementById('cash_donations_checkbox').addEventListener('change', function() {
+                        const cashOptionsContainer = document.getElementById('cash-options-container');
+                        cashOptionsContainer.style.display = this.checked ? 'block' : 'none';
+                    });
 
-        <div class="result-container" id="resultContainer">
-            <div class="result-text" id="inviteText"></div>
-            <button class="btn btn-primary" id="copyButton">Copy to Clipboard</button>
-        </div>
-    </div>
+                    // Handle charity donations link visibility
+                    document.getElementById('charity_donations_checkbox').addEventListener('change', function() {
+                        const charityContainer = document.getElementById('charity-container');
+                        charityContainer.style.display = this.checked ? 'block' : 'none';
+                    });
 
-    <script>
-        // Handle age input visibility
-        document.getElementById('celebration_type').addEventListener('change', function() {
-            const ageGroup = document.getElementById('age-group');
-            const needsAge = ['birthday', 'bar_mitzvah'].includes(this.value);
-            ageGroup.style.display = needsAge ? 'block' : 'none';
-            document.getElementById('age').required = needsAge;
+                    // Handle PayPal link visibility
+                    document.querySelectorAll('input[name="cash_method"]').forEach(radio => {
+                        radio.addEventListener('change', function() {
+                            const paypalInput = document.getElementById('paypal_link');
+                            paypalInput.style.display = this.value === 'paypal' ? 'block' : 'none';
+                            paypalInput.required = this.value === 'paypal';
+                        });
+                    });
 
-            // Handle "Other" input visibility
-            const otherInput = document.getElementById('other_celebration');
-            otherInput.style.display = this.value === 'other' ? 'block' : 'none';
-            otherInput.required = this.value === 'other';
-        });
+                    // Handle gift emphasis level change
+                    document.getElementById('gift_emphasis').addEventListener('change', function() {
+                        const customGreenContainer = document.getElementById('custom-green-container');
+                        customGreenContainer.style.display = (this.value >= 3) ? 'block' : 'none';
+                    });
 
-        // Handle theme "Other" input visibility
-        document.getElementById('theme').addEventListener('change', function() {
-            const otherInput = document.getElementById('other_theme');
-            otherInput.style.display = this.value === 'other' ? 'block' : 'none';
-            otherInput.required = this.value === 'other';
-        });
+                    document.getElementById('inviteForm').addEventListener('submit', async (e) => {
+                        e.preventDefault();
 
-        document.getElementById('inviteForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+                        // Get selected preferences
+                        const preferences = Array.from(document.querySelectorAll('input[name="preferences"]:checked'))
+                            .map(checkbox => checkbox.value);
 
-            // Get selected preferences
-            const preferences = Array.from(document.querySelectorAll('input[name="preferences"]:checked'))
-                .map(checkbox => checkbox.value);
+                        // Format date
+                        const dateObj = new Date(document.getElementById('date').value);
+                        const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        });
 
-            // Format date
-            const dateObj = new Date(document.getElementById('date').value);
-            const formattedDate = dateObj.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
+                        // Format time
+                        const timeValue = document.getElementById('time').value;
+                        const [hours, minutes] = timeValue.split(':');
+                        const formattedTime = new Date(2024, 0, 1, hours, minutes).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            hour12: true
+                        });
 
-            // Format time
-            const timeValue = document.getElementById('time').value;
-            const [hours, minutes] = timeValue.split(':');
-            const formattedTime = new Date(2024, 0, 1, hours, minutes).toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true
-            });
+                        // Show loading spinner
+                        document.getElementById('loading').style.display = 'block';
+                        document.getElementById('resultContainer').style.display = 'none';
 
-            // Show loading spinner
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('resultContainer').style.display = 'none';
+                        try {
+                            const response = await fetch('/generate-invite', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    celebrant_name: document.getElementById('celebrant_name').value,
+                                    celebration_type: document.getElementById('celebration_type').value === 'other' 
+                                        ? 'other:' + document.getElementById('other_celebration').value 
+                                        : document.getElementById('celebration_type').value,
+                                    age: document.getElementById('age').value,
+                                    theme: document.getElementById('theme').value === 'other'
+                                        ? 'other:' + document.getElementById('other_theme').value
+                                        : document.getElementById('theme').value,
+                                    interests: document.getElementById('interests').value,
+                                    date: formattedDate,
+                                    time: formattedTime,
+                                    location: document.getElementById('location').value,
+                                    preferences: preferences,
+                                    style: ['formal', 'friendly', 'very casual'][document.getElementById('style').value],
+                                    emoji_level: ['none', 'minimal', 'moderate', 'lots'][document.getElementById('emoji_level').value],
+                                    length: ['very-short', 'short', 'medium', 'long'][document.getElementById('length').value],
+                                    gift_emphasis_level: ['subtle', 'gentle', 'clear', 'eco', 'advocate'][document.getElementById('gift_emphasis').value],
+                                    custom_green_statement: document.getElementById('custom_green_statement').value,
+                                    cash_method: document.querySelector('input[name="cash_method"]:checked')?.value || null,
+                                    paypal_link: document.getElementById('paypal_link').value,
+                                    charity_link: document.getElementById('charity_link').value,
+                                    website_link: 'GreenVite.fun'
+                                })
+                            });
 
-            try {
-                const response = await fetch('/generate-invite', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        celebrant_name: document.getElementById('celebrant_name').value,
-                        celebration_type: document.getElementById('celebration_type').value === 'other' 
-                            ? 'other:' + document.getElementById('other_celebration').value 
-                            : document.getElementById('celebration_type').value,
-                        age: document.getElementById('age').value,
-                        theme: document.getElementById('theme').value === 'other'
-                            ? 'other:' + document.getElementById('other_theme').value
-                            : document.getElementById('theme').value,
-                        interests: document.getElementById('interests').value,
-                        date: formattedDate,
-                        time: formattedTime,
-                        location: document.getElementById('location').value,
-                        preferences: preferences,
-                        style: ['formal', 'friendly', 'very casual'][document.getElementById('style').value],
-                        emoji_level: ['none', 'minimal', 'moderate', 'lots'][document.getElementById('emoji_level').value],
-                        length: ['very-short', 'short', 'medium', 'long'][document.getElementById('length').value]
-                    })
-                });
+                            const data = await response.json();
 
-                const data = await response.json();
+                            if (response.ok) {
+                                document.getElementById('inviteText').textContent = data.invite_text;
+                                document.getElementById('resultContainer').style.display = 'block';
+                            } else {
+                                alert(data.error || 'An error occurred');
+                            }
+                        } catch (error) {
+                            alert('An error occurred while generating the invite');
+                        } finally {
+                            document.getElementById('loading').style.display = 'none';
+                        }
+                    });
 
-                if (response.ok) {
-                    document.getElementById('inviteText').textContent = data.invite_text;
-                    document.getElementById('resultContainer').style.display = 'block';
-                } else {
-                    alert(data.error || 'An error occurred');
-                }
-            } catch (error) {
-                alert('An error occurred while generating the invite');
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
-        });
+                    document.getElementById('clearForm').addEventListener('click', () => {
+                        document.getElementById('inviteForm').reset();
+                        document.getElementById('resultContainer').style.display = 'none';
+                        // Reset all optional input fields visibility
+                        document.getElementById('other_celebration').style.display = 'none';
+                        document.getElementById('other_theme').style.display = 'none';
+                        document.getElementById('custom-green-container').style.display = 'none';
+                        document.getElementById('cash-options-container').style.display = 'none';
+                        document.getElementById('charity-container').style.display = 'none';
+                        document.getElementById('paypal_link').style.display = 'none';
+                        // Reset age input visibility
+                        document.getElementById('age-group').style.display = 'block';
+                    });
 
-        document.getElementById('clearForm').addEventListener('click', () => {
-            document.getElementById('inviteForm').reset();
-            document.getElementById('resultContainer').style.display = 'none';
-            // Reset other input fields visibility
-            document.getElementById('other_celebration').style.display = 'none';
-            document.getElementById('other_theme').style.display = 'none';
-            // Reset age input visibility
-            document.getElementById('age-group').style.display = 'block';
-        });
-
-        document.getElementById('copyButton').addEventListener('click', () => {
-            const inviteText = document.getElementById('inviteText').textContent;
-            navigator.clipboard.writeText(inviteText).then(() => {
-                alert('Copied to clipboard!');
-            }).catch(() => {
-                alert('Failed to copy to clipboard');
-            });
-        });
-    </script>
-</body>
-</html>
+                    document.getElementById('copyButton').addEventListener('click', () => {
+                        const inviteText = document.getElementById('inviteText').textContent;
+                        navigator.clipboard.writeText(inviteText).then(() => {
+                            alert('Copied to clipboard!');
+                        }).catch(() => {
+                            alert('Failed to copy to clipboard');
+                        });
+                    });
+                </script>
+            </body>
+            </html>

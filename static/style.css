@@ -52,6 +52,33 @@ h1 {
   font-weight: 600;
 }
 
+/* Radio group styles */
+.radio-group {
+  display: flex;
+  gap: 20px;
+  margin: 10px 0;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px;
+  transition: transform 0.2s;
+}
+
+.radio-item:hover {
+  transform: translateX(5px);
+}
+
+.radio-item input[type="radio"] {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
 .text-input, .select-input, .number-input, .date-input, .time-input, .textarea-input {
   width: 100%;
   padding: 10px;
@@ -100,6 +127,21 @@ h1 {
 
 .checkbox-item input[type="checkbox"] {
   margin-right: 10px;
+}
+
+/* Payment and charity link containers */
+#cash-options-container,
+#charity-container {
+  background: white;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#paypal_link,
+#charity_link {
+  margin-top: 10px;
 }
 
 .slider-container {
@@ -250,5 +292,10 @@ h1 {
 
   .form-section {
       padding: 15px;
+  }
+
+  .radio-group {
+      flex-direction: column;
+      gap: 10px;
   }
 }
