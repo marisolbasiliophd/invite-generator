@@ -74,9 +74,9 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="interests">Personal Interests/Hobbies:</label>
-                    <textarea id="interests" name="interests" class="textarea-input" 
-                              placeholder="Enter celebrant's interests or hobbies"></textarea>
+                    <label for="party_activities">Party Activities (optional):</label>
+                    <textarea id="party_activities" name="party_activities" class="textarea-input" 
+                              placeholder="Enter any special activities planned for the party (games, entertainment, etc.)"></textarea>
                 </div>
             </div>
 
@@ -100,88 +100,94 @@
                               placeholder="Enter full address or venue name" required></textarea>
                 </div>
             </div>
-
             <!-- Gift Preferences Section -->
-            <div class="form-section">
-                <h2>Gift Preferences</h2>
-                <div class="checkbox-group">
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="preferences" value="preloved toys welcome">
-                        Preloved Toys Welcome
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="preferences" value="books only">
-                        Books Only
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="preferences" value="preloved books">
-                        Preloved Books
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="preferences" value="no plastic toys">
-                        No Plastic Toys
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="preferences" value="experience gifts welcome">
-                        Experience Gifts Welcome
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="preferences" value="cash donations welcome" id="cash_donations_checkbox">
-                        Cash Donations Welcome
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="preferences" value="charity donations welcome" id="charity_donations_checkbox">
-                        Charity Donations Welcome
-                    </label>
-                </div>
+                        <div class="form-section">
+                            <h2>Gift Preferences</h2>
 
-                <div class="input-group" id="cash-options-container" style="display: none;">
-                    <label>Cash Donation Preference:</label>
-                    <div class="radio-group">
-                        <label class="radio-item">
-                            <input type="radio" name="cash_method" value="envelope">
-                            Cash in Envelope
-                        </label>
-                        <label class="radio-item">
-                            <input type="radio" name="cash_method" value="paypal">
-                            PayPal
-                        </label>
-                    </div>
-                    <input type="text" id="paypal_link" name="paypal_link" 
-                           class="text-input" style="display: none;"
-                           placeholder="Enter your PayPal.me link">
-                </div>
+                            <div class="input-group">
+                                <label for="interests">Current Interests & Hobbies:</label>
+                                <textarea id="interests" name="interests" class="textarea-input" 
+                                          placeholder="Describe the celebrant's current interests, hobbies, and favorite activities to help guests choose meaningful gifts"></textarea>
+                            </div>
 
-                <div class="input-group" id="charity-container" style="display: none;">
-                    <label for="charity_link">Preferred Charity Link:</label>
-                    <input type="text" id="charity_link" name="charity_link" 
-                           class="text-input"
-                           placeholder="Enter the charity's donation page URL">
-                </div>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="preferences" value="preloved toys welcome">
+                                    Preloved Toys Welcome
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="preferences" value="books only">
+                                    Books Only
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="preferences" value="preloved books">
+                                    Preloved Books
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="preferences" value="no plastic toys">
+                                    No Plastic Toys
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="preferences" value="experience gifts welcome">
+                                    Experience Gifts Welcome
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="preferences" value="cash donations welcome" id="cash_donations_checkbox">
+                                    Cash Donations Welcome
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="preferences" value="charity donations welcome" id="charity_donations_checkbox">
+                                    Charity Donations Welcome
+                                </label>
+                            </div>
 
-                <div class="form-group">
-                    <label for="gift_emphasis">Gift Preference Emphasis:</label>
-                    <div class="slider-container">
-                        <input type="range" id="gift_emphasis" name="gift_emphasis" min="0" max="4" value="1" class="style-slider">
-                        <div class="slider-labels">
-                            <span>Subtle Hint</span>
-                            <span>Gentle</span>
-                            <span>Clear</span>
-                            <span>Eco-conscious</span>
-                            <span>Green Advocate</span>
+                            <div class="input-group" id="cash-options-container" style="display: none;">
+                                <label>Cash Donation Preference:</label>
+                                <div class="radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="cash_method" value="envelope">
+                                        Cash in Envelope
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="cash_method" value="paypal">
+                                        PayPal
+                                    </label>
+                                </div>
+                                <input type="text" id="paypal_link" name="paypal_link" 
+                                       class="text-input" style="display: none;"
+                                       placeholder="Enter your PayPal.me link">
+                            </div>
+
+                            <div class="input-group" id="charity-container" style="display: none;">
+                                <label for="charity_link">Preferred Charity Link:</label>
+                                <input type="text" id="charity_link" name="charity_link" 
+                                       class="text-input"
+                                       placeholder="Enter the charity's donation page URL">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gift_emphasis">Gift Preference Emphasis:</label>
+                                <div class="slider-container">
+                                    <input type="range" id="gift_emphasis" name="gift_emphasis" min="0" max="4" value="1" class="style-slider">
+                                    <div class="slider-labels">
+                                        <span>Subtle Hint</span>
+                                        <span>Gentle</span>
+                                        <span>Clear</span>
+                                        <span>Eco-conscious</span>
+                                        <span>Green Advocate</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="input-group" id="custom-green-container" style="display: none;">
+                                <label for="custom_green_statement">Custom Environmental Statement (optional):</label>
+                                <textarea id="custom_green_statement" name="custom_green_statement" 
+                                        class="textarea-input" 
+                                        placeholder="Share your family's environmental values or sustainable celebration goals..."></textarea>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="input-group" id="custom-green-container" style="display: none;">
-                    <label for="custom_green_statement">Custom Environmental Statement (optional):</label>
-                    <textarea id="custom_green_statement" name="custom_green_statement" 
-                            class="textarea-input" 
-                            placeholder="Share your family's environmental values or sustainable celebration goals..."></textarea>
-                </div>
-            </div>
-
-            <!-- Style Options Section -->
+                        <!-- Style Options Section -->
                         <div class="form-section">
                             <h2>Style Options</h2>
                             <div class="form-group">
@@ -329,6 +335,7 @@
                                     theme: document.getElementById('theme').value === 'other'
                                         ? 'other:' + document.getElementById('other_theme').value
                                         : document.getElementById('theme').value,
+                                    party_activities: document.getElementById('party_activities').value,
                                     interests: document.getElementById('interests').value,
                                     date: formattedDate,
                                     time: formattedTime,

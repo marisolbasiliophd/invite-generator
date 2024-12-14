@@ -18,14 +18,15 @@ def create_invite_text(party_details):
     if theme.startswith('other:'):
         theme = theme.replace('other:', '').strip()
 
-    # Get themed opening section
+    # Get themed opening section with activities
     theme_section = create_theme_section(
         theme,
         party_details['celebrant_name'],
         party_details.get('age', ''),
         party_details['date'],
         party_details['time'],
-        party_details['location']
+        party_details['location'],
+        party_details.get('party_activities', '')
     )
 
     # Get interests and gift section combined
@@ -41,12 +42,12 @@ def create_invite_text(party_details):
     )
 
     # Create flowing prompt
-    prompt = f"""Please write a {party_details['style']} invitation for a {celebration} celebration that flows naturally in two paragraphs:
+    prompt = f"""Please write a {party_details['style']} invitation for a {celebration} celebration that naturally flows in two paragraphs:
 
-Opening paragraph - theme and event details:
+Theme and Event Details:
 {theme_section}
 
-Personal interests and gift preferences paragraph:
+Interests and Gift Preferences:
 {interests_and_gifts}
 
 Style instruction: {get_style_guide(party_details['style'])}
@@ -55,10 +56,10 @@ Length instruction: {get_length_guide(party_details['length'])}
 
 Important formatting:
 - Format all dates, times, locations, and the celebrant's name using markdown bold syntax (e.g., **date**)
-- Create a flowing invitation without any section numbers or headers
-- Ensure natural transitions between ideas
-- The second paragraph should flow smoothly from interests to gift preferences
-- The gift preferences should feel connected to the child's interests where possible"""
+- Create a flowing invitation without any section markers
+- Make the first paragraph exciting and engaging
+- Make the second paragraph feel personal and meaningful
+- Ensure natural transitions between ideas"""
 
     # Call Claude API
     response = anthropic.messages.create(
@@ -71,8 +72,8 @@ Important formatting:
 
     return response.content[0].text
 
-def create_theme_section(theme, name, age, date, time, location):
-    """Generate the themed opening paragraph."""
+def create_theme_section(theme, name, age, date, time, location, activities=''):
+    """Generate the themed opening paragraph including party activities if provided."""
     theme_guides = {
         'superheroes': "Use superhero action and adventure themed language",
         'princess': "Use magical royal themed language",
@@ -91,13 +92,16 @@ def create_theme_section(theme, name, age, date, time, location):
         'circus': "Use carnival and circus themed language"
     }
 
+    activities_instruction = """
+Include these special activities in an exciting way: {activities}""" if activities else ""
+
     return f"""Create an exciting opening that:
 - {theme_guides.get(theme, "Use theme-appropriate language")}
 - Announces that {name} {"turns " + age if age else "is celebrating"}
 - Incorporates these details naturally:
   - Date: {date}
   - Time: {time}
-  - Location: {location}"""
+  - Location: {location}{activities_instruction}"""
 
 def create_interests_and_gifts_section(name, interests, emphasis_level, preferences, custom_statement='', cash_method=None, paypal_link=None, charity_link=None):
     """Generate combined interests and gift preferences section."""
@@ -115,32 +119,35 @@ def create_interests_and_gifts_section(name, interests, emphasis_level, preferen
     if 'charity donations welcome' in preferences and charity_link:
         preferences_text += f". In lieu of gifts, consider donating to our chosen charity at: {charity_link}"
 
+    # Build interests text
+    interests_intro = f"Given {name}'s love of {interests}" if interests else f"For {name}'s special day"
+
     emphasis_guides = {
-        'subtle': f"""Create a paragraph that:
-- Warmly describes {name}'s interests: {interests}
-- Very subtly mentions these gift preferences: {preferences_text}
+        'subtle': f"""Create a warm paragraph that:
+- Uses this context for gift suggestions: {interests_intro}
+- Very subtly mentions these preferences: {preferences_text}
 - Uses soft language like "if you're thinking of gifts" or "has an appreciation for" """,
 
-        'gentle': f"""Create a paragraph that:
-- Warmly describes {name}'s interests: {interests}
-- Suggests these gift preferences gently: {preferences_text}
+        'gentle': f"""Create a warm paragraph that:
+- Uses this context for gift suggestions: {interests_intro}
+- Suggests these preferences gently: {preferences_text}
 - Uses warm language like "would be delighted with" or "we warmly welcome" """,
 
-        'clear': f"""Create a paragraph that:
-- Warmly describes {name}'s interests: {interests}
-- States these gift preferences clearly but politely: {preferences_text}
+        'clear': f"""Create a warm paragraph that:
+- Uses this context for gift suggestions: {interests_intro}
+- States these preferences clearly but politely: {preferences_text}
 - Uses direct but warm language about the gift preferences""",
 
-        'eco': f"""Create a paragraph that:
-- Warmly describes {name}'s interests: {interests}
-- Connects interests to environmental awareness where possible
-- Presents these gift preferences as eco-conscious choices: {preferences_text}
+        'eco': f"""Create a warm paragraph that:
+- Uses this context for gift suggestions: {interests_intro}
+- Connects to environmental awareness where possible
+- Presents these preferences as eco-conscious choices: {preferences_text}
 {custom_statement if custom_statement else ''}""",
 
-        'advocate': f"""Create a paragraph that:
-- Warmly describes {name}'s interests: {interests}
-- Connects interests to environmental awareness
-- Strongly emphasizes sustainable gift choices: {preferences_text}
+        'advocate': f"""Create a warm paragraph that:
+- Uses this context for gift suggestions: {interests_intro}
+- Connects strongly to environmental awareness
+- Emphasizes sustainable gift choices: {preferences_text}
 {custom_statement if custom_statement else "Our family is committed to raising eco-conscious children and celebrating sustainably."}
 End with: "Want to create your own sustainable celebration? Visit GreenVite.fun 🌱" """
     }
