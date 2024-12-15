@@ -4,6 +4,85 @@ import os
 # Initialize Anthropic client using environment variable
 anthropic = Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
 
+# Theme-specific vocabulary and elements dictionary
+THEME_ELEMENTS = {
+    'superheroes': {
+        'vocabulary': ['superhero', 'powers', 'mighty', 'heroic', 'adventure', 'save the day', 'mission', 'headquarters'],
+        'elements': ['superhero costumes', 'special powers', 'hero training activities', 'saving the world'],
+        'atmosphere': 'action-packed and heroic'
+    },
+    'princess': {
+        'vocabulary': ['royal', 'magical', 'enchanted', 'kingdom', 'castle', 'crown', 'majestic', 'fairy tale'],
+        'elements': ['royal castle', 'magical wands', 'tiaras', 'royal activities'],
+        'atmosphere': 'magical and enchanting'
+    },
+    'dinosaurs': {
+        'vocabulary': ['prehistoric', 'mighty', 'roaring', 'extinct', 'fossil', 'Jurassic', 'ancient'],
+        'elements': ['dinosaur excavation', 'fossil hunting', 'prehistoric games', 'dino facts'],
+        'atmosphere': 'prehistoric and adventurous'
+    },
+    'space': {
+        'vocabulary': ['cosmic', 'stellar', 'galactic', 'astronomical', 'orbit', 'space station', 'mission control'],
+        'elements': ['space exploration', 'astronaut training', 'planetary discovery', 'cosmic games'],
+        'atmosphere': 'out-of-this-world and stellar'
+    },
+    'animals': {
+        'vocabulary': ['wild', 'safari', 'jungle', 'habitat', 'species', 'conservation', 'nature'],
+        'elements': ['animal spotting', 'wildlife games', 'nature exploration', 'animal facts'],
+        'atmosphere': 'wild and naturalistic'
+    },
+    'pirates': {
+        'vocabulary': ['ahoy', 'treasure', 'swashbuckling', 'maritime', 'seafaring', 'buccaneer', 'crew'],
+        'elements': ['treasure hunt', 'ship activities', 'map reading', 'pirate games'],
+        'atmosphere': 'adventurous and seafaring'
+    },
+    'unicorns': {
+        'vocabulary': ['magical', 'rainbow', 'sparkle', 'enchanted', 'mystical', 'glitter', 'fairy'],
+        'elements': ['rainbow activities', 'magical crafts', 'unicorn games', 'enchanted fun'],
+        'atmosphere': 'magical and whimsical'
+    },
+    'sports': {
+        'vocabulary': ['championship', 'victory', 'team', 'athletic', 'champion', 'score', 'win'],
+        'elements': ['sports games', 'team activities', 'championship challenges', 'athletic fun'],
+        'atmosphere': 'energetic and competitive'
+    },
+    'ocean': {
+        'vocabulary': ['underwater', 'marine', 'aquatic', 'sea', 'coral', 'waves', 'deep blue'],
+        'elements': ['underwater exploration', 'marine discovery', 'ocean games', 'sea life'],
+        'atmosphere': 'underwater and mysterious'
+    },
+    'art': {
+        'vocabulary': ['creative', 'artistic', 'colorful', 'imaginative', 'masterpiece', 'inspiration', 'design'],
+        'elements': ['art creation', 'creative activities', 'artistic expression', 'crafting fun'],
+        'atmosphere': 'creative and artistic'
+    },
+    'science': {
+        'vocabulary': ['experiment', 'discovery', 'laboratory', 'hypothesis', 'research', 'innovation', 'scientist'],
+        'elements': ['science experiments', 'lab activities', 'discovery stations', 'research fun'],
+        'atmosphere': 'experimental and innovative'
+    },
+    'garden': {
+        'vocabulary': ['botanical', 'natural', 'blooming', 'growing', 'organic', 'floral', 'nature'],
+        'elements': ['garden exploration', 'planting activities', 'nature crafts', 'outdoor fun'],
+        'atmosphere': 'natural and peaceful'
+    },
+    'videogames': {
+        'vocabulary': ['gaming', 'level up', 'player', 'quest', 'achievement', 'victory', 'high score'],
+        'elements': ['gaming stations', 'virtual challenges', 'player activities', 'game tournaments'],
+        'atmosphere': 'gaming and competitive'
+    },
+    'music': {
+        'vocabulary': ['musical', 'rhythmic', 'melodic', 'harmony', 'symphony', 'beat', 'tune'],
+        'elements': ['music making', 'dance activities', 'rhythm games', 'musical fun'],
+        'atmosphere': 'musical and rhythmic'
+    },
+    'circus': {
+        'vocabulary': ['spectacular', 'carnival', 'amazing', 'performances', 'acrobatic', 'magnificent', 'show'],
+        'elements': ['circus acts', 'carnival games', 'amazing performances', 'spectacular fun'],
+        'atmosphere': 'spectacular and entertaining'
+    }
+}
+
 def create_invite_text(party_details):
     """
     Generate party invite text using Claude API based on detailed party information.
@@ -13,14 +92,23 @@ def create_invite_text(party_details):
     if celebration.startswith('other:'):
         celebration = celebration.replace('other:', '').strip()
 
-    # Handle custom theme
+    # Handle theme with enhanced theme control
     theme = party_details['theme']
     if theme.startswith('other:'):
         theme = theme.replace('other:', '').strip()
+        # Create custom theme elements for user-specified themes
+        theme_info = {
+            'vocabulary': ['special', 'unique', 'custom', 'themed', 'extraordinary'],
+            'elements': ['themed activities', 'special games', 'unique experiences'],
+            'atmosphere': 'unique and special'
+        }
+    else:
+        theme_info = THEME_ELEMENTS.get(theme, THEME_ELEMENTS['art'])  # Default to art theme if not found
 
     # Get themed opening section with activities
     theme_section = create_theme_section(
         theme,
+        theme_info,
         party_details['celebrant_name'],
         party_details.get('age', ''),
         party_details['date'],
@@ -29,7 +117,7 @@ def create_invite_text(party_details):
         party_details.get('party_activities', '')
     )
 
-    # Get interests and gift section combined
+    # Get interests and gifts section
     interests_and_gifts = create_interests_and_gifts_section(
         party_details['celebrant_name'],
         party_details.get('interests', ''),
@@ -41,8 +129,13 @@ def create_invite_text(party_details):
         party_details.get('charity_link')
     )
 
-    # Create flowing prompt
-    prompt = f"""Please write a {party_details['style']} invitation for a {celebration} celebration that naturally flows in two paragraphs:
+    # Create enhanced prompt with strong theme enforcement
+    prompt = f"""Create a {party_details['style']} invitation for a {celebration} celebration that MUST maintain a consistent {theme} theme throughout. The invitation should feel like a {theme_info['atmosphere']} experience.
+
+Required theme elements to incorporate:
+- Use at least 3 of these theme-specific words: {', '.join(theme_info['vocabulary'])}
+- Include references to these themed elements: {', '.join(theme_info['elements'])}
+- Maintain the {theme_info['atmosphere']} atmosphere throughout
 
 Theme and Event Details:
 {theme_section}
@@ -59,49 +152,46 @@ Important formatting:
 - Create a flowing invitation without any section markers
 - Make the first paragraph exciting and engaging
 - Make the second paragraph feel personal and meaningful
-- Ensure natural transitions between ideas"""
+- Ensure natural transitions between ideas
+- MAINTAIN THE {theme.upper()} THEME THROUGHOUT THE ENTIRE INVITATION"""
 
-    # Call Claude API
-    response = anthropic.messages.create(
-        model="claude-3-sonnet-20240229",
-        max_tokens=400,
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
-    )
+    try:
+        # Call Claude API with retries
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = anthropic.messages.create(
+                    model="claude-3-sonnet-20240229",
+                    max_tokens=400,
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                return response.content[0].text
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise
+                continue
 
-    return response.content[0].text
-
-def create_theme_section(theme, name, age, date, time, location, activities=''):
+    except Exception as e:
+        raise ValueError(f"Failed to generate invitation: {str(e)}")
+def create_theme_section(theme, theme_info, name, age, date, time, location, activities=''):
     """Generate the themed opening paragraph including party activities if provided."""
-    theme_guides = {
-        'superheroes': "Use superhero action and adventure themed language",
-        'princess': "Use magical royal themed language",
-        'dinosaurs': "Use prehistoric/dinosaur themed language",
-        'space': "Use space exploration themed language",
-        'animals': "Use safari/wildlife themed language",
-        'pirates': "Use swashbuckling pirate themed language",
-        'unicorns': "Use magical and enchanted themed language",
-        'sports': "Use sports and championship themed language",
-        'ocean': "Use underwater adventure themed language",
-        'art': "Use creative and artistic themed language",
-        'science': "Use laboratory and experiment themed language",
-        'garden': "Use nature and flower themed language",
-        'videogames': "Use gaming and adventure themed language",
-        'music': "Use musical and rhythmic themed language",
-        'circus': "Use carnival and circus themed language"
-    }
 
-    activities_instruction = """
-Include these special activities in an exciting way: {activities}""" if activities else ""
+    # Create theme-specific activity suggestions if none provided
+    activities_text = f"""Include these special activities in an exciting way, maintaining the {theme} theme:
+- {activities}""" if activities else f"""Suggest these theme-appropriate activities:
+- {', '.join(theme_info['elements'][:2])}"""
 
     return f"""Create an exciting opening that:
-- {theme_guides.get(theme, "Use theme-appropriate language")}
+- Uses {theme_info['atmosphere']} language throughout
+- Incorporates at least 2 of these theme words: {', '.join(theme_info['vocabulary'][:4])}
 - Announces that {name} {"turns " + age if age else "is celebrating"}
-- Incorporates these details naturally:
+- Incorporates these details naturally while maintaining the theme:
   - Date: {date}
   - Time: {time}
-  - Location: {location}{activities_instruction}"""
+  - Location: {location}
+{activities_text}"""
 
 def create_interests_and_gifts_section(name, interests, emphasis_level, preferences, custom_statement='', cash_method=None, paypal_link=None, charity_link=None):
     """Generate combined interests and gift preferences section."""
