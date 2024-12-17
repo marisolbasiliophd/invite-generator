@@ -1,5 +1,5 @@
 :root {
-  --primary-color: #4a90e2;
+  --primary-color: ##2e994d;
   --secondary-color: #f39c12;
   --background-color: #f5f6fa;
   --text-color: #2c3e50;
@@ -8,7 +8,7 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Outfit', sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
   line-height: 1.6;
